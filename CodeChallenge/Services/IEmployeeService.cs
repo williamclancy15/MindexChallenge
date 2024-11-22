@@ -8,9 +8,11 @@ namespace CodeChallenge.Services
 {
     public interface IEmployeeService
     {
-        Employee GetById(String id);
-        Employee Create(Employee employee);
-        Employee Replace(Employee originalEmployee, Employee newEmployee);
+        Employee GetEmployeeById(String id);
+        Employee CreateEmployee(Employee employee);
+        Employee ReplaceEmployee(Employee originalEmployee, Employee newEmployee);
+        Compensation CreateCompensation(Compensation compensation);
+        Compensation GetCompensationById(String id);
         ReportingStructure GetReportingStructure(String id);
     }
 }

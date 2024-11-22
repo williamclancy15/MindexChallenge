@@ -26,8 +26,6 @@ namespace CodeChallenge.Data
                 _employeeContext.Employees.AddRange(employees);
 
                 await _employeeContext.SaveChangesAsync();
-
-                Employee test = _employeeContext.Employees.FirstOrDefault(e => e.EmployeeId == "16a596ae-edd3-4847-99fe-c4518e82c86f");
             }
         }
 

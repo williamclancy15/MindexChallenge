@@ -6,9 +6,11 @@ namespace CodeChallenge.Repositories
 {
     public interface IEmployeeRepository
     {
-        Employee GetById(String id);
-        Employee Add(Employee employee);
-        Employee Remove(Employee employee);
+        Employee GetEmployeeById(String id);
+        Employee AddEmployee(Employee employee);
+        Employee RemoveEmployee(Employee employee);
+        Compensation AddCompensation(Compensation compensation);
+        Compensation GetCompensationById(String id);
         Task SaveAsync();
     }
 }

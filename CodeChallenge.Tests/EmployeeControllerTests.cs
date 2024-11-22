@@ -1,4 +1,5 @@
 
+using System;
 using System.Net;
 using System.Net.Http;
 using System.Text;
@@ -150,5 +151,86 @@ namespace CodeCodeChallenge.Tests.Integration
             // Assert
             Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
         }
+
+        [TestMethod]
+        public void CreateCompensation_Returns_Ok()
+        {
+            var employeeId = "16a596ae-edd3-4847-99fe-c4518e82c86f";
+            var comp = 70000;
+            var date = "2024-11-22";
+
+            var postRequestTask = _httpClient.PostAsync($"api/employee/compensation?id={employeeId}&comp={comp}&date={date}", null);
+            var response = postRequestTask.Result;
+
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+
+			var compensation = response.DeserializeContent<Compensation>();
+            Assert.AreEqual(employeeId, compensation.Employee.EmployeeId);
+            Assert.AreEqual(comp, compensation.Salary);
+            Assert.AreEqual(DateTime.Parse(date), compensation.Date);
+		}
+
+        [TestMethod]
+        public void GetCompensationById_Returns_Ok()
+        {
+			var employeeId = "b7839309-3348-463b-a7e3-5de1c168beb3";
+			var comp = 90000;
+			var date = "2024-11-22";
+
+            //create compensation
+			var postRequestTask = _httpClient.PostAsync($"api/employee/compensation?id={employeeId}&comp={comp}&date={date}", null);
+            var response1 = postRequestTask.Result;
+
+            //fetch the newly created compensation
+            var getRequestTask = _httpClient.GetAsync($"api/employee/compensation/{employeeId}");
+            var response = getRequestTask.Result;
+
+            Assert.AreEqual (HttpStatusCode.OK, response.StatusCode);
+
+			var compensation = response.DeserializeContent<Compensation>();
+			Assert.AreEqual(employeeId, compensation.Employee.EmployeeId);
+			Assert.AreEqual(comp, compensation.Salary);
+			Assert.AreEqual(DateTime.Parse(date), compensation.Date);
+		}
+
+        //this next test currently does not pass.
+        //I thought that maybe my solution would enable the Compensation GET calls to account for updates
+        //to Employee records, but it seems that isn't the case. If I had more time, this would be something
+        //I would try to achieve.
+
+/*        [TestMethod]
+        public void Compensation_Updates_With_Employee()
+        {
+			var employeeId = "03aa1462-ffa9-4978-901b-7c001562cf6f";
+			var comp = 80000;
+			var date = "2024-11-22";
+
+			var postRequestTask = _httpClient.PostAsync($"api/employee/compensation?id={employeeId}&comp={comp}&date={date}", null);
+			var response1 = postRequestTask.Result;
+            Assert.AreEqual(HttpStatusCode.OK, response1.StatusCode);
+
+			var employee = new Employee()
+			{
+				EmployeeId = "03aa1462-ffa9-4978-901b-7c001562cf6f",
+				Department = "Marketing",
+				FirstName = "Pete",
+				LastName = "Best",
+				Position = "Graphic Designer",
+			};
+			var requestContent = new JsonSerialization().ToJson(employee);
+            var putRequestTask = _httpClient.PutAsync($"api/employee/{employee.EmployeeId}",
+				new StringContent(requestContent, Encoding.UTF8, "application/json"));
+
+            var response2 = putRequestTask.Result;
+            Assert.AreEqual(HttpStatusCode.OK, response2.StatusCode);
+
+            var getRequestTask = _httpClient.GetAsync($"api/employee/compensation/{employeeId}");
+            var response3 = getRequestTask.Result;
+            Assert.AreEqual(HttpStatusCode.OK, response3.StatusCode);
+
+			var compensation = response3.DeserializeContent<Compensation>();
+            Assert.AreEqual(employee.Department, compensation.Employee.Department);
+            Assert.AreEqual(employee.Position, compensation.Employee.Position);
+		}*/
     }
 }

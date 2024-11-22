@@ -27,7 +27,7 @@ namespace CodeChallenge.Controllers
         {
             _logger.LogDebug($"Received employee create request for '{employee.FirstName} {employee.LastName}'");
 
-            _employeeService.Create(employee);
+            _employeeService.CreateEmployee(employee);
 
             return CreatedAtRoute("getEmployeeById", new { id = employee.EmployeeId }, employee);
         }
@@ -37,7 +37,7 @@ namespace CodeChallenge.Controllers
         {
             _logger.LogDebug($"Received employee get request for '{id}'");
 
-            var employee = _employeeService.GetById(id);
+            var employee = _employeeService.GetEmployeeById(id);
 
             if (employee == null)
                 return NotFound();
@@ -63,13 +63,53 @@ namespace CodeChallenge.Controllers
         {
             _logger.LogDebug($"Recieved employee update request for '{id}'");
 
-            var existingEmployee = _employeeService.GetById(id);
+            var existingEmployee = _employeeService.GetEmployeeById(id);
             if (existingEmployee == null)
                 return NotFound();
 
-            _employeeService.Replace(existingEmployee, newEmployee);
+            _employeeService.ReplaceEmployee(existingEmployee, newEmployee);
 
             return Ok(newEmployee);
         }
+
+        [HttpPost("compensation")]
+        public IActionResult CreateCompensation(String id, int comp, string date)
+        {
+            _logger.LogDebug($"Received compensation creation request for {id}");
+
+            //fetch the employee, if they exist
+			var existingEmployee = _employeeService.GetEmployeeById(id);
+			if (existingEmployee == null)
+				return NotFound();
+
+            //parse date string
+			DateTime dateTime = DateTime.ParseExact(date, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
+			
+            //assemble Compensation object
+            Compensation compensation = new Compensation()
+			{
+				Employee = existingEmployee as Employee,
+				Salary = comp,
+				Date = dateTime
+			};
+
+            //add to database and return result
+			var result = _employeeService.CreateCompensation(compensation);
+			if (result == null) return NotFound();
+
+			return Ok(result);
+		}
+
+        [HttpGet("compensation/{id}")]
+        public IActionResult GetCompensationById(String id)
+        {
+			_logger.LogDebug($"Received compensation get request for {id}");
+
+            var compensation = _employeeService.GetCompensationById(id);
+            if (compensation == null)
+                return NotFound();
+
+            return Ok(compensation);
+		}
     }
 }
