@@ -171,6 +171,19 @@ namespace CodeCodeChallenge.Tests.Integration
 		}
 
         [TestMethod]
+        public void CreateCompensation_Returns_NotFound()
+        {
+			var employeeId = "DoesNotExist";
+			var comp = 9999999;
+			var date = "2020-02-02";
+
+			var postRequestTask = _httpClient.PostAsync($"api/employee/compensation?id={employeeId}&comp={comp}&date={date}", null);
+			var response = postRequestTask.Result;
+
+			Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
+		}
+
+		[TestMethod]
         public void GetCompensationById_Returns_Ok()
         {
 			var employeeId = "b7839309-3348-463b-a7e3-5de1c168beb3";
@@ -193,6 +206,15 @@ namespace CodeCodeChallenge.Tests.Integration
 			Assert.AreEqual(DateTime.Parse(date), compensation.Date);
 		}
 
+        [TestMethod]
+        public void GetCompensationById_Returns_NotFound()
+        {
+			var getRequestTask = _httpClient.GetAsync($"api/employee/compensation/DoesNotExist");
+			var response = getRequestTask.Result;
+
+			Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
+		}
+
         //this next test currently does not pass.
         //I thought that maybe my solution would enable the Compensation GET calls to account for updates
         //to Employee records, but it seems that isn't the case. If I had more time, this would be something
@@ -201,6 +223,7 @@ namespace CodeCodeChallenge.Tests.Integration
 /*        [TestMethod]
         public void Compensation_Updates_With_Employee()
         {
+            //create salary for Pete
 			var employeeId = "03aa1462-ffa9-4978-901b-7c001562cf6f";
 			var comp = 80000;
 			var date = "2024-11-22";
@@ -209,6 +232,7 @@ namespace CodeCodeChallenge.Tests.Integration
 			var response1 = postRequestTask.Result;
             Assert.AreEqual(HttpStatusCode.OK, response1.StatusCode);
 
+            //update Employee record for Pete with new Department and Position
 			var employee = new Employee()
 			{
 				EmployeeId = "03aa1462-ffa9-4978-901b-7c001562cf6f",
@@ -224,10 +248,12 @@ namespace CodeCodeChallenge.Tests.Integration
             var response2 = putRequestTask.Result;
             Assert.AreEqual(HttpStatusCode.OK, response2.StatusCode);
 
+            //get Pete's compensation record
             var getRequestTask = _httpClient.GetAsync($"api/employee/compensation/{employeeId}");
             var response3 = getRequestTask.Result;
             Assert.AreEqual(HttpStatusCode.OK, response3.StatusCode);
 
+            //check that new Department and Position are reflected
 			var compensation = response3.DeserializeContent<Compensation>();
             Assert.AreEqual(employee.Department, compensation.Employee.Department);
             Assert.AreEqual(employee.Position, compensation.Employee.Position);
