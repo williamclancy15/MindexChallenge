@@ -20,14 +20,20 @@ namespace CodeChallenge.Repositories
             _logger = logger;
         }
 
-        public Employee Add(Employee employee)
+        public Employee AddEmployee(Employee employee)
         {
             employee.EmployeeId = Guid.NewGuid().ToString();
             _employeeContext.Employees.Add(employee);
             return employee;
         }
 
-        public Employee GetById(string id)
+        public Compensation AddCompensation(Compensation compensation)
+        {
+            _employeeContext.Compensations.Add(compensation);
+            return compensation;
+        }
+
+        public Employee GetEmployeeById(string id)
         {
             return _employeeContext.Employees
                 .Include(e => e.DirectReports) //this is needed for the directReports to not be null
@@ -36,12 +42,18 @@ namespace CodeChallenge.Repositories
 				.SingleOrDefault(e => e.EmployeeId == id);
         }
 
+        public Compensation GetCompensationById(string id)
+        {
+            return _employeeContext.Compensations
+                .SingleOrDefault(c => c.Employee.EmployeeId == id);
+        }
+
         public Task SaveAsync()
         {
             return _employeeContext.SaveChangesAsync();
         }
 
-        public Employee Remove(Employee employee)
+        public Employee RemoveEmployee(Employee employee)
         {
             return _employeeContext.Remove(employee).Entity;
         }

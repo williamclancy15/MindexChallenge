@@ -19,38 +19,38 @@ namespace CodeChallenge.Services
             _logger = logger;
         }
 
-        public Employee Create(Employee employee)
+        public Employee CreateEmployee(Employee employee)
         {
             if(employee != null)
             {
-                _employeeRepository.Add(employee);
+                _employeeRepository.AddEmployee(employee);
                 _employeeRepository.SaveAsync().Wait();
             }
 
             return employee;
         }
 
-        public Employee GetById(string id)
+        public Employee GetEmployeeById(string id)
         {
             if(!String.IsNullOrEmpty(id))
             {
-                return _employeeRepository.GetById(id);
+                return _employeeRepository.GetEmployeeById(id);
             }
 
             return null;
         }
 
-        public Employee Replace(Employee originalEmployee, Employee newEmployee)
+        public Employee ReplaceEmployee(Employee originalEmployee, Employee newEmployee)
         {
             if(originalEmployee != null)
             {
-                _employeeRepository.Remove(originalEmployee);
+                _employeeRepository.RemoveEmployee(originalEmployee);
                 if (newEmployee != null)
                 {
                     // ensure the original has been removed, otherwise EF will complain another entity w/ same id already exists
                     _employeeRepository.SaveAsync().Wait();
 
-                    _employeeRepository.Add(newEmployee);
+                    _employeeRepository.AddEmployee(newEmployee);
                     // overwrite the new id with previous employee id
                     newEmployee.EmployeeId = originalEmployee.EmployeeId;
                 }
@@ -62,7 +62,7 @@ namespace CodeChallenge.Services
 
         public ReportingStructure GetReportingStructure(string id) 
         {
-            Employee employee = GetById(id); //make sure requested employee exists
+            Employee employee = GetEmployeeById(id); //make sure requested employee exists
             if (employee == null) return null;
 
             List<string> reports = new List<string>(); //create empty list for unique employeeIds
@@ -76,17 +76,34 @@ namespace CodeChallenge.Services
 
         private List<string> ReportingStructureHelper(List<string> reports, string id)
         {
-            Employee employee = GetById(id);
+            Employee employee = GetEmployeeById(id);
             if (employee == null || employee.DirectReports == null) return reports;
             for (int i = 0; i < employee.DirectReports.Count; i++) //for each of the current employee's DirectReports
             {
                 if (!reports.Contains(employee.DirectReports[i].EmployeeId)) //if we haven't counted this employee already...
                 {
 					reports.Add(employee.DirectReports[i].EmployeeId); //add their id to the list
-                    ReportingStructureHelper(reports, employee.DirectReports[i].EmployeeId); //repeat this process for their DirectReport
+                    ReportingStructureHelper(reports, employee.DirectReports[i].EmployeeId); //repeat this process for their next DirectReport
 				}
             }
             return reports;
         }
-    }
+
+		public Compensation CreateCompensation(Compensation compensation)
+		{
+			_employeeRepository.AddCompensation(compensation);
+			_employeeRepository.SaveAsync().Wait();
+			return compensation;
+		}
+
+        public Compensation GetCompensationById(string id)
+        {
+            if (!String.IsNullOrEmpty(id))
+            {
+                return _employeeRepository.GetCompensationById(id);
+            }
+            
+            return null;
+        }
+	}
 }
