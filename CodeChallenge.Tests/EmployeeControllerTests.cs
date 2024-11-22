@@ -103,6 +103,16 @@ namespace CodeCodeChallenge.Tests.Integration
 		}
 
         [TestMethod]
+        public void GetReportingStructure_Returns_NotFound()
+        {
+            var employeeId = "DoesNotExist";
+			var getRequestTask = _httpClient.GetAsync($"api/employee/reporting/{employeeId}");
+			var response = getRequestTask.Result;
+
+			Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
+		}
+
+        [TestMethod]
         public void UpdateEmployee_Returns_Ok()
         {
             // Arrange
@@ -217,8 +227,8 @@ namespace CodeCodeChallenge.Tests.Integration
 
         //this next test currently does not pass.
         //I thought that maybe my solution would enable the Compensation GET calls to account for updates
-        //to Employee records, but it seems that isn't the case. If I had more time, this would be something
-        //I would try to achieve.
+        //to Employee records, but it seems that isn't the case. If I were to develop this further, this
+        //would be something I would try to achieve.
 
 /*        [TestMethod]
         public void Compensation_Updates_With_Employee()
