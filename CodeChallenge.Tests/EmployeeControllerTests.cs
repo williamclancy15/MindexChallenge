@@ -193,6 +193,19 @@ namespace CodeCodeChallenge.Tests.Integration
 			Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
 		}
 
+        [TestMethod]
+        public void CreateCompensation_Returns_BadRequest()
+        {
+			var employeeId = "16a596ae-edd3-4847-99fe-c4518e82c86f";
+			var comp = 70000;
+			var date = "11-22-2024";
+
+			var postRequestTask = _httpClient.PostAsync($"api/employee/compensation?id={employeeId}&comp={comp}&date={date}", null);
+			var response = postRequestTask.Result;
+
+			Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
+		}
+
 		[TestMethod]
         public void GetCompensationById_Returns_Ok()
         {

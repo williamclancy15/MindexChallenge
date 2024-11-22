@@ -82,22 +82,32 @@ namespace CodeChallenge.Controllers
 			if (existingEmployee == null)
 				return NotFound();
 
-            //parse date string
-			DateTime dateTime = DateTime.ParseExact(date, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
-			
-            //assemble Compensation object
-            Compensation compensation = new Compensation()
-			{
-				Employee = existingEmployee as Employee,
-				Salary = comp,
-				Date = dateTime
-			};
+            
+            try
+            {
+                //parse date string (MUST be in yyyy-MM-dd format)
+                DateTime dateTime = DateTime.ParseExact(date, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
 
-            //add to database and return result
-			var result = _employeeService.CreateCompensation(compensation);
-			if (result == null) return NotFound();
+				//assemble Compensation object
+				Compensation compensation = new Compensation()
+				{
+					Employee = existingEmployee as Employee,
+					Salary = comp,
+					Date = dateTime
+				};
 
-			return Ok(result);
+				//add to database and return result
+				var result = _employeeService.CreateCompensation(compensation);
+				if (result == null) return NotFound();
+
+				return Ok(result);
+			}
+
+            //Return error message if date format was invalid
+            catch (FormatException e)
+            {
+                return BadRequest(e.Message);
+            }
 		}
 
         [HttpGet("compensation/{id}")]
